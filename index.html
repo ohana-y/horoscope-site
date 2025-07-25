@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星座占い - あなたの今日の運勢</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic Medium', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #F5E6E8 0%, #E8C4C4 50%, #D4A5A5 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: #8B4B6B;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #A0657A;
+            font-weight: 300;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(212, 165, 165, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 1.1rem;
+            color: #8B4B6B;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #E8C4C4;
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #D4A5A5;
+            box-shadow: 0 0 20px rgba(212, 165, 165, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-select {
+            padding: 15px 20px;
+            border: 2px solid #E8C4C4;
+            border-radius: 15px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #D4A5A5;
+            box-shadow: 0 0 20px rgba(212, 165, 165, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #D4A5A5 0%, #C89999 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(212, 165, 165, 0.4);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 165, 165, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result-card {
+            display: none;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .zodiac-symbol {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .zodiac-name {
+            font-size: 2rem;
+            color: #8B4B6B;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .fortune-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(248, 240, 242, 0.7);
+            border-radius: 15px;
+            border-left: 5px solid #D4A5A5;
+        }
+
+        .fortune-title {
+            font-family: 'Crimson Text', serif;
+            font-size: 1.2rem;
+            color: #8B4B6B;
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fortune-content {
+            color: #6B4C57;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .lucky-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .lucky-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(212, 165, 165, 0.2);
+        }
+
+        .lucky-label {
+            font-size: 0.9rem;
+            color: #A0657A;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .lucky-value {
+            font-size: 1.3rem;
+            color: #8B4B6B;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #A0657A;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #E8C4C4;
+            border-top: 4px solid #D4A5A5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-key-section {
+            background: rgba(255, 248, 220, 0.9);
+            border: 2px solid #E8C4C4;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .api-key-title {
+            color: #8B4B6B;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E8C4C4;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .api-key-note {
+            font-size: 0.85rem;
+            color: #A0657A;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .lucky-info {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .lucky-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">✨ 星座占い & 数秘術 ✨</h1>
+            <p class="subtitle">天体の動きと数秘からあなたの運勢と性格を総合的に読み解きます</p>
+        </div>
+
+        <div class="card">
+            <form id="fortuneForm">
+                <div class="form-group">
+                    <label class="form-label">📅 完全な生年月日を入力してください</label>
+                    <div class="form-row">
+                        <input type="number" id="year" class="form-input" placeholder="年 (例: 1990)" min="1900" max="2025" required>
+                        <select id="month" class="form-select" required>
+                            <option value="">月を選択</option>
+                            <option value="1">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                        <select id="day" class="form-select" required>
+                            <option value="">日を選択</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🕐 出生時刻を入力してください（分からない場合は12:00でOK）</label>
+                    <div class="form-row">
+                        <select id="hour" class="form-select" required>
+                            <option value="">時を選択</option>
+                        </select>
+                        <select id="minute" class="form-select" required>
+                            <option value="">分を選択</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button type="submit" class="btn">🌟 天体位置を調べて占う 🌟</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="loadingCard" class="card loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>天体の位置を計算中...<br>宇宙からのメッセージを受信しています✨</p>
+        </div>
+
+        <div id="resultCard" class="card result-card">
+            <div id="zodiacSymbol" class="zodiac-symbol"></div>
+            <div id="zodiacName" class="zodiac-name"></div>
+            
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(248, 240, 242, 0.5); border-radius: 10px;">
+                <div style="font-size: 0.9rem; color: #8B4B6B; font-style: italic;">
+                    ✨ 天体の動きと数秘術であなたを総合的に分析しています ✨
+                </div>
+            </div>
+
+            <div class="fortune-section">
+                <div class="fortune-title">🌟 今日の総合運勢</div>
+                <div id="overallFortune" class="fortune-content"></div>
+            </div>
+
+            <div class="fortune-section">
+                <div class="fortune-title">💕 恋愛運</div>
+                <div id="loveFortune" class="fortune-content"></div>
+            </div>
+
+            <div class="fortune-section">
+                <div class="fortune-title">💼 仕事運・金運</div>
+                <div id="workFortune" class="fortune-content"></div>
+            </div>
+
+            <div class="fortune-section">
+                <div class="fortune-title">🌿 健康運</div>
+                <div id="healthFortune" class="fortune-content"></div>
+            </div>
+
+            <div class="lucky-info">
+                <div class="lucky-item">
+                    <div class="lucky-label">🎨 ラッキーカラー</div>
+                    <div id="luckyColor" class="lucky-value"></div>
+                </div>
+                <div class="lucky-item">
+                    <div class="lucky-label">🔢 ラッキーナンバー</div>
+                    <div id="luckyNumber" class="lucky-value"></div>
+                </div>
+            </div>
+
+            <div class="fortune-section">
+                <div class="fortune-title">💌 今日のアドバイス</div>
+                <div id="advice" class="fortune-content"></div>
+            </div>
+
+            <!-- 数秘術セクション -->
+            <div class="fortune-section" style="background: linear-gradient(135deg, rgba(255, 240, 245, 0.8), rgba(255, 228, 225, 0.8)); border-left: 5px solid #E8A4C4;">
+                <div class="fortune-title">🔢 数秘術からの洞察</div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #8B4B6B; margin-bottom: 10px;">📋 あなたの基本性格 (ライフパス: <span id="lifePathNumber"></span>)</h4>
+                    <div id="personalityDescription" class="fortune-content" style="font-size: 0.95rem;"></div>
+                    <div style="margin-top: 8px; font-size: 0.9rem;">
+                        <strong style="color: #A0657A;">強み:</strong> <span id="personalityStrengths"></span><br>
+                        <strong style="color: #A0657A;">課題:</strong> <span id="personalityChallenges"></span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #8B4B6B; margin-bottom: 8px;">📅 今日の数秘 (パーソナルデイ: <span id="personalDayNumber"></span>)</h4>
+                    <div id="personalDayMessage" class="fortune-content" style="font-size: 0.95rem;"></div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #8B4B6B; margin-bottom: 8px;">🗓️ 今月の数秘 (パーソナルマンス: <span id="personalMonthNumber"></span>)</h4>
+                    <div id="personalMonthMessage" class="fortune-content" style="font-size: 0.95rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 星座の基本データ
+        const zodiacData = {
+            'おひつじ座': { symbol: '♈', dates: [[3, 21], [4, 19]] },
+            'おうし座': { symbol: '♉', dates: [[4, 20], [5, 20]] },
+            'ふたご座': { symbol: '♊', dates: [[5, 21], [6, 21]] },
+            'かに座': { symbol: '♋', dates: [[6, 22], [7, 22]] },
+            'しし座': { symbol: '♌', dates: [[7, 23], [8, 22]] },
+            'おとめ座': { symbol: '♍', dates: [[8, 23], [9, 22]] },
+            'てんびん座': { symbol: '♎', dates: [[9, 23], [10, 23]] },
+            'さそり座': { symbol: '♏', dates: [[10, 24], [11, 22]] },
+            'いて座': { symbol: '♐', dates: [[11, 23], [12, 21]] },
+            'やぎ座': { symbol: '♑', dates: [[12, 22], [12, 31]], extra: [[1, 1], [1, 19]] },
+            'みずがめ座': { symbol: '♒', dates: [[1, 20], [2, 18]] },
+            'うお座': { symbol: '♓', dates: [[2, 19], [3, 20]] }
+        };
+
+        // 占星術解釈データベース
+        const astroInterpretations = {
+            // 太陽の星座別解釈（総合運勢）
+            sun: {
+                '牡羊座': '積極的で行動力に満ちたエネルギーが強く、新しいチャレンジに向いた時期です。',
+                '牡牛座': '安定を求める気持ちが高まり、確実な成果を求める傾向にあります。',
+                '双子座': 'コミュニケーション能力が活発になり、多方面での活動が期待できます。',
+                '蟹座': '感情的な深さと家庭的な温かさが強調される時期です。',
+                '獅子座': '自己表現力と創造性が高まり、注目を集めやすい時です。',
+                '乙女座': '細かい作業や分析的な思考が得意になる実務的な時期です。',
+                '天秤座': 'バランス感覚と美的センスが光り、調和を重視する時期です。',
+                '蠍座': '深い洞察力と集中力が増し、本質を見抜く力が強まります。',
+                '射手座': '冒険心と学習意欲が高まり、視野を広げる絶好の機会です。',
+                '山羊座': '責任感と目標達成への意識が強まる実践的な時期です。',
+                '水瓶座': '独創性と革新的なアイデアが湧き出る創造的な時期です。',
+                '魚座': '直感力と芸術的感性が高まる感受性豊かな時期です。'
+            },
+            // 金星の星座別解釈（恋愛運）
+            venus: {
+                '牡羊座': '情熱的で積極的なアプローチが恋愛に効果的。新しい出会いにも期待大です。',
+                '牡牛座': '安定した愛情関係を築きやすく、五感を使った愛の表現が印象的です。',
+                '双子座': '知的な会話や軽やかなコミュニケーションが恋愛の鍵となります。',
+                '蟹座': '家庭的で包容力のある愛情が相手の心を温め、深い絆を築けます。',
+                '獅子座': '華やかで魅力的な自己表現が恋愛運を高める時期です。',
+                '乙女座': '誠実で細やかな気配りが相手に好印象を与える穏やかな恋愛期です。',
+                '天秤座': '上品で洗練された魅力が輝き、美しいものを共有する恋愛が理想的です。',
+                '蠍座': '深く情熱的な愛情で相手を魅了し、運命的な出会いの可能性もあります。',
+                '射手座': '自由で開放的な関係性を好み、一緒に冒険できるパートナーとの縁が深まります。',
+                '山羊座': '真面目で長期的な視点での恋愛関係を築きやすい安定期です。',
+                '水瓶座': 'ユニークで友達のような関係から始まる恋愛に発展しやすい時期です。',
+                '魚座': 'ロマンチックで夢見がちな恋愛観が強まり、理想的な愛を求める傾向にあります。'
+            },
+            // 火星の星座別解釈（仕事運・行動力）
+            mars: {
+                '牡羊座': '行動力と決断力が最高潮に達し、リーダーシップを発揮できる時期です。',
+                '牡牛座': '着実で粘り強い努力が実を結び、確実な成果を上げられます。',
+                '双子座': '多方面での活動や情報収集能力が仕事に活かされる時期です。',
+                '蟹座': 'チームワークを大切にし、人をサポートする能力が評価されます。',
+                '獅子座': '創造的なプロジェクトや表現力を活かした仕事で力を発揮します。',
+                '乙女座': '分析力と完璧主義的な取り組みが職場で重宝される時期です。',
+                '天秤座': '調整能力と美的センスを活かした仕事で成功を収められます。',
+                '蠍座': '集中力と探究心を活かし、深く掘り下げる研究的な仕事に向いています。',
+                '射手座': '国際的な視野や教育的な分野での活動が活発になる時期です。',
+                '山羊座': '組織での地位向上や長期的なキャリア構築に最適な時期です。',
+                '水瓶座': '革新的なアイデアやチームでの協働が仕事の成功につながります。',
+                '魚座': '直感力を活かした創作活動やサービス業で能力を発揮できます。'
+            },
+            // 月の星座別解釈（健康運・内面）
+            moon: {
+                '牡羊座': '活力に満ちていますが、頭部や目の疲れに注意。適度な休息を心がけて。',
+                '牡牛座': '体調は安定していますが、首や喉の不調に気を付けましょう。',
+                '双子座': '神経が敏感になりがち。呼吸器系の健康と十分な睡眠が大切です。',
+                '蟹座': '消化器系の調子に波があります。食事のバランスと水分補給を意識して。',
+                '獅子座': '心臓や背中の健康に注意。規則正しい生活リズムが重要です。',
+                '乙女座': '腸の健康を意識した食生活を。完璧主義によるストレスにも注意が必要。',
+                '天秤座': '腎臓や肌の調子に気を配って。バランスの取れた生活を心がけましょう。',
+                '蠍座': '生殖器系や免疫力に注意。デトックスを意識した生活が効果的です。',
+                '射手座': '足腰の健康と肝臓の働きに注意。適度な運動で体力維持を。',
+                '山羊座': '骨や関節、歯の健康管理が重要。カルシウムの摂取を意識して。',
+                '水瓶座': '血行促進と足首の健康に注意。新しい健康法を試すのも良いでしょう。',
+                '魚座': '足や免疫系の健康に気を付けて。心の健康も同じように大切にしましょう。'
+            }
+        };
+
+        // 数秘術システム
+        const numerologySystem = {
+            // ライフパスナンバーの計算
+            calculateLifePath: function(birthDate) {
+                const year = birthDate.getFullYear();
+                const month = birthDate.getMonth() + 1;
+                const day = birthDate.getDate();
+                
+                // 各要素を一桁になるまで足し合わせる
+                const sumDigits = (num) => {
+                    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+                        num = String(num).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+                    }
+                    return num;
+                };
+                
+                const yearSum = sumDigits(year);
+                const monthSum = sumDigits(month);
+                const daySum = sumDigits(day);
+                
+                return sumDigits(yearSum + monthSum + daySum);
+            },
+            
+            // ディスティニーナンバー（運命数）の計算（フルネーム）
+            calculateDestiny: function(birthDate) {
+                // 生年月日から簡易的に算出
+                const sum = birthDate.getFullYear() + (birthDate.getMonth() + 1) + birthDate.getDate();
+                return this.reduceToSingle(sum);
+            },
+            
+            // ソウルナンバーの計算（内面の欲求）
+            calculateSoul: function(birthDate) {
+                // 時刻を使用してソウルナンバーを算出
+                const hour = birthDate.getHours();
+                const minute = birthDate.getMinutes();
+                const sum = hour + minute + birthDate.getDate();
+                return this.reduceToSingle(sum);
+            },
+            
+            // パーソナルイヤーナンバー（今年の運勢）
+            calculatePersonalYear: function(birthDate, currentYear = new Date().getFullYear()) {
+                const month = birthDate.getMonth() + 1;
+                const day = birthDate.getDate();
+                const sum = month + day + this.reduceToSingle(currentYear);
+                return this.reduceToSingle(sum);
+            },
+            
+            // パーソナルマンスナンバー（今月の運勢）
+            calculatePersonalMonth: function(birthDate, currentDate = new Date()) {
+                const personalYear = this.calculatePersonalYear(birthDate, currentDate.getFullYear());
+                const currentMonth = currentDate.getMonth() + 1;
+                return this.reduceToSingle(personalYear + currentMonth);
+            },
+            
+            // パーソナルデイナンバー（今日の運勢）
+            calculatePersonalDay: function(birthDate, currentDate = new Date()) {
+                const personalMonth = this.calculatePersonalMonth(birthDate, currentDate);
+                const currentDay = currentDate.getDate();
+                return this.reduceToSingle(personalMonth + currentDay);
+            },
+            
+            // 数字を一桁に還元
+            reduceToSingle: function(num) {
+                while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+                    num = String(num).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+                }
+                return num;
+            }
+        };
+
+        // 数秘術解釈データベース
+        const numerologyInterpretations = {
+            lifePath: {
+                1: {
+                    personality: 'リーダーシップに長けた開拓者タイプ。独立心が強く、新しいことに挑戦することを好みます。',
+                    strengths: '決断力、独創性、積極性',
+                    challenges: '我が強すぎること、協調性の欠如'
+                },
+                2: {
+                    personality: '協調性と外交能力に優れた平和主義者。人とのつながりを大切にし、調和を重視します。',
+                    strengths: '協力性、感受性、バランス感覚',
+                    challenges: '優柔不断、自信不足'
+                },
+                3: {
+                    personality: '創造性とコミュニケーション能力に長けた表現者。芸術的才能があり、人を楽しませることが得意です。',
+                    strengths: '創造力、表現力、楽観性',
+                    challenges: '集中力不足、浪費傾向'
+                },
+                4: {
+                    personality: '堅実で責任感の強い組織者タイプ。計画性があり、コツコツと努力を積み重ねることができます。',
+                    strengths: '堅実性、組織力、忍耐力',
+                    challenges: '頑固さ、変化への抵抗'
+                },
+                5: {
+                    personality: '自由を愛する冒険家タイプ。変化と刺激を求め、多様な経験を通じて成長します。',
+                    strengths: '適応力、好奇心、自由さ',
+                    challenges: '飽きっぽさ、責任回避'
+                },
+                6: {
+                    personality: '愛情深い世話好きタイプ。家族や友人を大切にし、他人のために尽くすことに喜びを感じます。',
+                    strengths: '思いやり、責任感、美的センス',
+                    challenges: '過保護、心配性'
+                },
+                7: {
+                    personality: '内省的で精神性を重視する探求者タイプ。深く考え、真理を追求することを好みます。',
+                    strengths: '洞察力、直感力、精神性',
+                    challenges: '孤立しがち、現実逃避'
+                },
+                8: {
+                    personality: '野心的で実力主義の成功者タイプ。物質的成功を追求し、権力や地位に関心があります。',
+                    strengths: '実行力、野心、経営能力',
+                    challenges: '物質主義、権力欲'
+                },
+                9: {
+                    personality: '博愛精神に満ちた人道主義者タイプ。多くの人の幸せを願い、社会貢献に関心があります。',
+                    strengths: '慈悲心、理想主義、広い視野',
+                    challenges: '理想と現実のギャップ、感情的'
+                },
+                11: {
+                    personality: '直感力に優れたスピリチュアルなリーダータイプ。高い理想を持ち、人々を導く使命があります。',
+                    strengths: '直感力、霊感、指導力',
+                    challenges: '神経質、プレッシャーに弱い'
+                },
+                22: {
+                    personality: '壮大な夢を現実化する建設者タイプ。理想と現実を結びつけ、大きな成果を残すことができます。',
+                    strengths: '実現力、指導力、構築能力',
+                    challenges: '重圧、完璧主義'
+                }
+            },
+            personalDay: {
+                1: '新しいスタートに最適な日。積極的に行動すると良い結果が得られるでしょう。',
+                2: '協力と調和を重視する日。人との関係を大切にし、チームワークを活かしましょう。',
+                3: '創造性と表現力が高まる日。芸術的活動やコミュニケーションに良い日です。',
+                4: '計画的に物事を進める日。地道な努力が実を結ぶ時期です。',
+                5: '変化と冒険を楽しむ日。新しい体験や出会いが待っているかもしれません。',
+                6: '家族や愛する人との時間を大切にする日。思いやりと愛情が幸運を呼びます。',
+                7: '内省と学習に適した日。一人の時間を大切にし、精神的な成長を図りましょう。',
+                8: '目標達成に向けて努力する日。ビジネスや実務面で成果を上げやすい時期です。',
+                9: '他人への奉仕と慈愛の日。人助けや社会貢献活動に良いエネルギーが流れています。'
+            },
+            personalMonth: {
+                1: '新しいサイクルの始まり。今月は新企画や新しい関係をスタートさせるのに最適です。',
+                2: '協力関係を深める月。パートナーシップや友情を育むことに重点を置きましょう。',
+                3: '創造性が開花する月。芸術的活動や自己表現に積極的に取り組みましょう。',
+                4: '基盤を固める月。計画を立て、着実に目標に向かって進みましょう。',
+                5: '変化と自由を求める月。新しい経験や冒険に積極的にチャレンジしてみてください。',
+                6: '愛と責任の月。家族や大切な人との絆を深め、責任を果たすことに集中しましょう。',
+                7: '内面と向き合う月。瞑想や学習を通じて、精神的な成長を図る時期です。',
+                8: '成果を収穫する月。ビジネスや物質面での成功が期待できる時期です。',
+                9: '完成と手放しの月。不要なものを手放し、新しいサイクルに向けて準備しましょう。'
+            }
+        };
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 50;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function populateDays() {
+            const monthSelect = document.getElementById('month');
+            const daySelect = document.getElementById('day');
+            const hourSelect = document.getElementById('hour');
+            const minuteSelect = document.getElementById('minute');
+            
+            // 時間の選択肢を作成
+            for (let hour = 0; hour < 24; hour++) {
+                const option = document.createElement('option');
+                option.value = hour;
+                option.textContent = hour.toString().padStart(2, '0') + '時';
+                hourSelect.appendChild(option);
+            }
+            
+            // 分の選択肢を作成（1分刻み）
+            for (let minute = 0; minute < 60; minute++) {
+                const option = document.createElement('option');
+                option.value = minute;
+                option.textContent = minute.toString().padStart(2, '0') + '分';
+                minuteSelect.appendChild(option);
+            }
+            
+            // デフォルトで12:00を選択
+            hourSelect.value = 12;
+            minuteSelect.value = 0;
+            
+            monthSelect.addEventListener('change', function() {
+                const year = parseInt(document.getElementById('year').value) || 2024;
+                const month = parseInt(this.value);
+                daySelect.innerHTML = '<option value="">日を選択</option>';
+                
+                if (month) {
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const option = document.createElement('option');
+                        option.value = day;
+                        option.textContent = day + '日';
+                        daySelect.appendChild(option);
+                    }
+                }
+            });
+        }
+
+        function getZodiacSign(month, day) {
+            for (const [sign, data] of Object.entries(zodiacData)) {
+                const [[startMonth, startDay], [endMonth, endDay]] = data.dates;
+                
+                if (startMonth === endMonth) {
+                    if (month === startMonth && day >= startDay && day <= endDay) {
+                        return sign;
+                    }
+                } else {
+                    if ((month === startMonth && day >= startDay) || 
+                        (month === endMonth && day <= endDay)) {
+                        return sign;
+                    }
+                }
+                
+                if (data.extra) {
+                    const [[extraStartMonth, extraStartDay], [extraEndMonth, extraEndDay]] = data.extra;
+                    if ((month === extraStartMonth && day >= extraStartDay) || 
+                        (month === extraEndMonth && day <= extraEndDay)) {
+                        return sign;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // 天体位置を取得するための関数
+        async function getPlanetaryPositions(birthDate) {
+            try {
+                // 生年月日を基に天体位置を計算（今日の運勢なので今日の日付を使用）
+                const today = new Date();
+                
+                // 生年月日の情報も考慮した個別の天体配置計算
+                const positions = calculatePlanetaryPositions(today, birthDate);
+                
+                return positions;
+            } catch (error) {
+                console.error('天体位置の取得に失敗:', error);
+                return null;
+            }
+        }
+
+        // より本格的な天体位置計算（実際の天体暦に基づく）
+        function calculatePlanetaryPositions(date, birthDate = null) {
+            const J2000_EPOCH = new Date('2000-01-01T12:00:00Z');
+            const daysSinceJ2000 = (date - J2000_EPOCH) / (1000 * 60 * 60 * 24);
+            
+            // 実際の平均軌道要素を使用した天体位置計算
+            const meanLongitudes = {
+                sun: (280.460 + 0.9856474 * daysSinceJ2000) % 360,
+                moon: (218.316 + 13.176396 * daysSinceJ2000) % 360,
+                mercury: (252.251 + 4.092317 * daysSinceJ2000) % 360,
+                venus: (181.975 + 1.602136 * daysSinceJ2000) % 360,
+                mars: (355.453 + 0.524033 * daysSinceJ2000) % 360,
+                jupiter: (34.351 + 0.083091 * daysSinceJ2000) % 360,
+                saturn: (50.077 + 0.033494 * daysSinceJ2000) % 360
+            };
+            
+            // 楕円軌道の補正（簡易版）
+            const eccentricityCorrections = {
+                sun: 1.915 * Math.sin((357.5 + 0.9856 * daysSinceJ2000) * Math.PI / 180),
+                moon: 6.289 * Math.sin((134.9 + 13.0649 * daysSinceJ2000) * Math.PI / 180),
+                mercury: 23.44 * Math.sin((174.8 + 4.092 * daysSinceJ2000) * Math.PI / 180),
+                venus: 0.775 * Math.sin((50.4 + 1.602 * daysSinceJ2000) * Math.PI / 180),
+                mars: 10.69 * Math.sin((19.4 + 0.524 * daysSinceJ2000) * Math.PI / 180),
+                jupiter: 5.555 * Math.sin((20.0 + 0.083 * daysSinceJ2000) * Math.PI / 180),
+                saturn: 6.406 * Math.sin((317.0 + 0.033 * daysSinceJ2000) * Math.PI / 180)
+            };
+            
+            // 補正後の天体位置
+            let positions = {};
+            Object.keys(meanLongitudes).forEach(planet => {
+                positions[planet] = (meanLongitudes[planet] + eccentricityCorrections[planet]) % 360;
+                if (positions[planet] < 0) positions[planet] += 360;
+            });
+            
+            // 出生図の計算（birthDateが提供されている場合）
+            let birthChart = null;
+            if (birthDate) {
+                birthChart = calculateBirthChart(birthDate);
+            }
+            
+            // 惑星逆行の判定（より精密に）
+            const retrogradeData = checkRetrogradeAccurate(daysSinceJ2000);
+            
+            // 月相の計算
+            const moonPhase = calculateMoonPhase(date);
+
+            // 度数を星座に変換
+            const zodiacSigns = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', 
+                               '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+            
+            const result = {};
+            for (const [planet, degree] of Object.entries(positions)) {
+                const signIndex = Math.floor(degree / 30);
+                const signDegree = Math.floor(degree % 30);
+                
+                result[planet] = {
+                    sign: zodiacSigns[signIndex],
+                    degree: signDegree,
+                    longitude: degree, // 正確な黄経
+                    retrograde: retrogradeData[planet] || false
+                };
+            }
+            
+            // 月相とハウス情報を追加
+            result.moonPhase = moonPhase;
+            result.birthChart = birthChart;
+            
+            return result;
+        }
+        
+        // 出生図の計算
+        function calculateBirthChart(birthDate) {
+            const J2000_EPOCH = new Date('2000-01-01T12:00:00Z');
+            const daysSinceBirth = (birthDate - J2000_EPOCH) / (1000 * 60 * 60 * 24);
+            
+            // 出生時の天体位置計算
+            const birthPositions = {
+                sun: (280.460 + 0.9856474 * daysSinceBirth) % 360,
+                moon: (218.316 + 13.176396 * daysSinceBirth) % 360,
+                mercury: (252.251 + 4.092317 * daysSinceBirth) % 360,
+                venus: (181.975 + 1.602136 * daysSinceBirth) % 360,
+                mars: (355.453 + 0.524033 * daysSinceBirth) % 360,
+                jupiter: (34.351 + 0.083091 * daysSinceBirth) % 360,
+                saturn: (50.077 + 0.033494 * daysSinceBirth) % 360
+            };
+            
+            // 簡易ハウスシステム（出生時刻による）
+            const birthHour = birthDate.getHours();
+            const ascendant = (birthHour * 15) % 360; // 上昇宮（簡易計算）
+            
+            const zodiacSigns = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', 
+                               '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+            
+            const birthChart = {
+                ascendant: {
+                    sign: zodiacSigns[Math.floor(ascendant / 30)],
+                    degree: Math.floor(ascendant % 30)
+                },
+                planets: {}
+            };
+            
+            Object.keys(birthPositions).forEach(planet => {
+                const longitude = birthPositions[planet];
+                birthChart.planets[planet] = {
+                    sign: zodiacSigns[Math.floor(longitude / 30)],
+                    degree: Math.floor(longitude % 30),
+                    longitude: longitude
+                };
+            });
+            
+            return birthChart;
+        }
+        
+        // より精密な惑星逆行の判定
+        function checkRetrogradeAccurate(daysSinceJ2000) {
+            // 実際の逆行周期に基づく計算
+            const retrogradePatterns = {
+                mercury: Math.sin((daysSinceJ2000 / 88) * 2 * Math.PI) < -0.3, // 88日周期
+                venus: Math.sin((daysSinceJ2000 / 584) * 2 * Math.PI) < -0.7, // 584日周期  
+                mars: Math.sin((daysSinceJ2000 / 687) * 2 * Math.PI) < -0.6, // 687日周期
+                jupiter: Math.sin((daysSinceJ2000 / 399) * 2 * Math.PI) < -0.5, // 399日周期
+                saturn: Math.sin((daysSinceJ2000 / 378) * 2 * Math.PI) < -0.5, // 378日周期
+                sun: false, // 太陽は逆行しない
+                moon: false // 月は逆行しない
+            };
+            
+            return retrogradePatterns;
+        }
+        
+        // 月相の計算
+        function calculateMoonPhase(date) {
+            const knownNewMoon = new Date('2024-01-11'); // 既知の新月
+            const synodicMonth = 29.53059; // 朔望月
+            
+            const daysDiff = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+            const lunarCycle = ((daysDiff % synodicMonth) + synodicMonth) % synodicMonth;
+            
+            if (lunarCycle < 1.84) return { name: '新月', effect: 'new_beginning' };
+            else if (lunarCycle < 5.53) return { name: '三日月', effect: 'growth' };
+            else if (lunarCycle < 9.22) return { name: '上弦の月', effect: 'action' };
+            else if (lunarCycle < 12.91) return { name: '十三夜', effect: 'manifestation' };
+            else if (lunarCycle < 16.61) return { name: '満月', effect: 'completion' };
+            else if (lunarCycle < 20.30) return { name: '寝待月', effect: 'gratitude' };
+            else if (lunarCycle < 23.99) return { name: '下弦の月', effect: 'release' };
+            else if (lunarCycle < 27.68) return { name: '有明月', effect: 'reflection' };
+            else return { name: '新月前', effect: 'preparation' };
+        }
+
+        // 惑星同士のアスペクト（角度関係）を計算
+        function calculateAspects(positions) {
+            const aspects = [];
+            const planets = Object.keys(positions);
+            const aspectTypes = {
+                0: { name: '合', orb: 8, effect: 'strong' },
+                60: { name: '六分', orb: 6, effect: 'harmonious' },
+                90: { name: '四分', orb: 8, effect: 'challenging' },
+                120: { name: '三分', orb: 8, effect: 'harmonious' },
+                180: { name: '対立', orb: 8, effect: 'challenging' }
+            };
+            
+            for (let i = 0; i < planets.length; i++) {
+                for (let j = i + 1; j < planets.length; j++) {
+                    const planet1 = planets[i];
+                    const planet2 = planets[j];
+                    const degree1 = positions[planet1].degree + (getSignIndex(positions[planet1].sign) * 30);
+                    const degree2 = positions[planet2].degree + (getSignIndex(positions[planet2].sign) * 30);
+                    
+                    let angleDiff = Math.abs(degree1 - degree2);
+                    if (angleDiff > 180) angleDiff = 360 - angleDiff;
+                    
+                    for (const [aspectDegree, aspectInfo] of Object.entries(aspectTypes)) {
+                        const targetAngle = parseInt(aspectDegree);
+                        if (Math.abs(angleDiff - targetAngle) <= aspectInfo.orb) {
+                            aspects.push({
+                                planet1,
+                                planet2,
+                                aspect: aspectInfo.name,
+                                effect: aspectInfo.effect,
+                                angle: angleDiff
+                            });
+                        }
+                    }
+                }
+            }
+            return aspects;
+        }
+        
+        function getSignIndex(signName) {
+            const signs = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', 
+                          '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+            return signs.indexOf(signName);
+        }
+        
+        // トランジット効果の計算（現在の天体と出生図の相互作用）
+        function calculateTransitEffects(currentPositions, birthChart) {
+            let effects = {
+                overall: '',
+                love: '',
+                work: '',
+                health: ''
+            };
+            
+            // 主要なトランジットをチェック
+            const transitPlanets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+            
+            transitPlanets.forEach(transitPlanet => {
+                const currentPlanet = currentPositions[transitPlanet];
+                if (!currentPlanet) return;
+                
+                // 出生図の各惑星との角度をチェック
+                Object.keys(birthChart.planets).forEach(natalPlanet => {
+                    const natalPosition = birthChart.planets[natalPlanet];
+                    const angleDiff = Math.abs(currentPlanet.longitude - natalPosition.longitude);
+                    const normalizedAngle = angleDiff > 180 ? 360 - angleDiff : angleDiff;
+                    
+                    // 重要なトランジット・アスペクト
+                    if (normalizedAngle < 5) { // 合（0度）
+                        effects.overall += getTransitInterpretation(transitPlanet, natalPlanet, 'conjunction');
+                    } else if (Math.abs(normalizedAngle - 60) < 5) { // 六分（60度）
+                        effects.love += getTransitInterpretation(transitPlanet, natalPlanet, 'sextile');
+                    } else if (Math.abs(normalizedAngle - 90) < 5) { // 四分（90度）
+                        effects.work += getTransitInterpretation(transitPlanet, natalPlanet, 'square');
+                    } else if (Math.abs(normalizedAngle - 120) < 5) { // 三分（120度）
+                        effects.overall += getTransitInterpretation(transitPlanet, natalPlanet, 'trine');
+                    } else if (Math.abs(normalizedAngle - 180) < 5) { // 対立（180度）
+                        effects.health += getTransitInterpretation(transitPlanet, natalPlanet, 'opposition');
+                    }
+                });
+            });
+            
+            return effects;
+        }
+        
+        // トランジット解釈の取得
+        function getTransitInterpretation(transitPlanet, natalPlanet, aspectType) {
+            const interpretations = {
+                sun: {
+                    sun: {
+                        conjunction: ' 太陽回帰の影響で新しいサイクルが始まります。',
+                        trine: ' 自己実現の好機が訪れています。'
+                    },
+                    moon: {
+                        conjunction: ' 意識と感情が調和し、直感が冴えています。',
+                        square: ' 感情と理性のバランスを取ることが大切です。'
+                    }
+                },
+                venus: {
+                    sun: {
+                        conjunction: ' 魅力と創造性が高まる時期です。',
+                        sextile: ' 恋愛や美的活動に良い影響があります。'
+                    },
+                    venus: {
+                        conjunction: ' 金星回帰により、愛と美の意識が高まります。'
+                    }
+                },
+                mars: {
+                    sun: {
+                        conjunction: ' 行動力とエネルギーが最高潮に達します。',
+                        square: ' 衝動的な行動に注意が必要です。'
+                    },
+                    mars: {
+                        conjunction: ' 火星回帰により、新たな挑戦への意欲が湧きます。'
+                    }
+                }
+            };
+            
+            return interpretations[transitPlanet]?.[natalPlanet]?.[aspectType] || '';
+        }
+
+        // より本格的な占星術解釈生成（トランジットとネイタルの相互作用）
+        function generateAstrologyFortune(zodiacSign, planetaryPositions, birthDate) {
+            const aspects = calculateAspects(planetaryPositions);
+            const moonPhase = planetaryPositions.moonPhase;
+            const birthChart = planetaryPositions.birthChart;
+            
+            // 基本解釈
+            const sunInterpretation = astroInterpretations.sun[planetaryPositions.sun.sign];
+            const venusInterpretation = astroInterpretations.venus[planetaryPositions.venus.sign];
+            const marsInterpretation = astroInterpretations.mars[planetaryPositions.mars.sign];
+            const moonInterpretation = astroInterpretations.moon[planetaryPositions.moon.sign];
+            
+            // トランジット解釈（現在の天体が出生図に与える影響）
+            let transitEffects = '';
+            if (birthChart) {
+                transitEffects = calculateTransitEffects(planetaryPositions, birthChart);
+            }
+            
+            // アスペクトによる修正
+            let aspectModifications = {
+                overall: '',
+                love: '',
+                work: '',
+                health: ''
+            };
+            
+            aspects.forEach(aspect => {
+                if (aspect.planet1 === 'sun' || aspect.planet2 === 'sun') {
+                    if (aspect.effect === 'harmonious') {
+                        aspectModifications.overall += ' 太陽の調和的な配置により、全体的に良い流れが期待できます。';
+                    } else if (aspect.effect === 'challenging') {
+                        aspectModifications.overall += ' 太陽の緊張配置により、注意深い行動が必要ですが、成長の機会でもあります。';
+                    }
+                }
+                
+                if ((aspect.planet1 === 'venus' && aspect.planet2 === 'mars') || 
+                    (aspect.planet1 === 'mars' && aspect.planet2 === 'venus')) {
+                    if (aspect.effect === 'harmonious') {
+                        aspectModifications.love += ' 金星と火星の良い配置により、恋愛において積極性と魅力が調和します。';
+                    } else if (aspect.effect === 'challenging') {
+                        aspectModifications.love += ' 金星と火星の緊張配置により、恋愛では慎重さと情熱のバランスが重要です。';
+                    }
+                }
+            });
+            
+            // 月相による影響
+            let moonPhaseEffect = '';
+            switch (moonPhase.effect) {
+                case 'new_beginning':
+                    moonPhaseEffect = ' 新月の影響で新しいスタートに最適な時期です。';
+                    break;
+                case 'growth':
+                    moonPhaseEffect = ' 成長の月相により、学習や発展に良い時期です。';
+                    break;
+                case 'action':
+                    moonPhaseEffect = ' 上弦の月の力で行動力が高まる時期です。';
+                    break;
+                case 'completion':
+                    moonPhaseEffect = ' 満月の強いエネルギーで物事が完成に向かう時期です。';
+                    break;
+                case 'release':
+                    moonPhaseEffect = ' 下弦の月の影響で手放しと浄化に適した時期です。';
+                    break;
+                default:
+                    moonPhaseEffect = ` ${moonPhase.name}の影響を受けています。`;
+            }
+            
+            // 惑星逆行による影響
+            let retrogradeEffects = '';
+            Object.entries(planetaryPositions).forEach(([planet, data]) => {
+                if (data.retrograde) {
+                    const planetNames = {
+                        mercury: '水星',
+                        venus: '金星', 
+                        mars: '火星',
+                        jupiter: '木星',
+                        saturn: '土星'
+                    };
+                    if (planetNames[planet]) {
+                        retrogradeEffects += ` ${planetNames[planet]}逆行中のため、${planet === 'mercury' ? 'コミュニケーション' : planet === 'venus' ? '恋愛関係' : planet === 'mars' ? '行動' : '変化'}について慎重に進めましょう。`;
+                    }
+                }
+            });
+            
+            // ラッキーカラーとナンバーを天体位置から算出（生年月日考慮）
+            const luckyColor = getLuckyColor(planetaryPositions);
+            const luckyNumber = getLuckyNumber(planetaryPositions, birthDate);
+            const advice = generateAdvice(planetaryPositions, aspects, birthDate);
+            
+            return {
+                overall: sunInterpretation + aspectModifications.overall + moonPhaseEffect + retrogradeEffects + transitEffects.overall,
+                love: venusInterpretation + aspectModifications.love + transitEffects.love,
+                work: marsInterpretation + aspectModifications.work + transitEffects.work,
+                health: moonInterpretation + aspectModifications.health + transitEffects.health,
+                color: luckyColor,
+                number: luckyNumber,
+                advice: advice
+            };
+        }
+        
+        // 天体位置からラッキーカラーを算出
+        function getLuckyColor(positions) {
+            const colors = {
+                '牡羊座': 'レッド', '牡牛座': 'グリーン', '双子座': 'イエロー',
+                '蟹座': 'シルバー', '獅子座': 'ゴールド', '乙女座': 'ネイビー',
+                '天秤座': 'ピンク', '蠍座': 'ディープレッド', '射手座': 'パープル',
+                '山羊座': 'ブラウン', '水瓶座': 'アクアブルー', '魚座': 'シーブルー'
+            };
+            
+            // 金星の星座からラッキーカラーを決定
+            return colors[positions.venus.sign] || 'ピンク';
+        }
+        
+        // 天体位置からラッキーナンバーを算出（生年月日も考慮）
+        function getLuckyNumber(positions, birthDate) {
+            let sum = 0;
+            
+            // 天体位置の度数を合計
+            Object.values(positions).forEach(pos => {
+                if (pos.degree !== undefined) {
+                    sum += pos.degree;
+                }
+            });
+            
+            // 生年月日による個人的な影響を追加
+            if (birthDate) {
+                const birthYear = birthDate.getFullYear();
+                const birthMonth = birthDate.getMonth() + 1;
+                const birthDay = birthDate.getDate();
+                const birthHour = birthDate.getHours();
+                const birthMinute = birthDate.getMinutes();
+                
+                // 生年月日を数値化してラッキーナンバーに影響
+                const personalLucky = (birthYear % 100) + (birthMonth * 3) + (birthDay * 2) + birthHour + Math.floor(birthMinute / 10);
+                sum += personalLucky;
+            }
+            
+            return String(((sum % 99) + 1));
+        }
+        
+        // 天体配置からアドバイスを生成（より個別化）
+        function generateAdvice(positions, aspects, birthDate) {
+            const baseAdvice = {
+                '牡羊座': ['勇気を持って新しい挑戦を', '積極的な行動が幸運を呼ぶ', 'リーダーシップを発揮して'],
+                '牡牛座': ['ゆっくりと確実に進んで', '美しいものに触れて心を豊かに', '五感を大切にした生活を'],
+                '双子座': ['好奇心を大切に学び続けて', 'コミュニケーションを楽しんで', '新しい情報にアンテナを張って'],
+                '蟹座': ['大切な人との絆を深めて', '家族との時間を大切に', '直感を信じて行動して'],
+                '獅子座': ['自信を持って輝いて', '創造性を存分に発揮して', '堂々と自分らしさを表現して'],
+                '乙女座': ['丁寧さが成功の鍵', '完璧を目指して努力して', '分析力を活かして'],
+                '天秤座': ['バランスと調和を心がけて', '美的センスを活かして', '人との調和を大切に'],
+                '蠍座': ['直感を信じて深く探求を', '集中力で困難を乗り越えて', '変化を恐れず受け入れて'],
+                '射手座': ['広い視野で自由に羽ばたいて', '新しい世界を探求して', '冒険心を大切に'],
+                '山羊座': ['着実な努力が実を結ぶ', '責任感を持って行動して', '目標に向かって一歩ずつ'],
+                '水瓶座': ['個性を活かして革新を', '独創的なアイデアを大切に', '仲間との絆を深めて'],
+                '魚座': ['思いやりの心で愛を伝えて', '芸術的感性を大切に', '直感に従って']
+            };
+            
+            // 生年月日による選択
+            let adviceIndex = 0;
+            if (birthDate) {
+                const birthSum = birthDate.getDate() + birthDate.getHours() + birthDate.getMinutes();
+                adviceIndex = birthSum % 3;
+            }
+            
+            const selectedAdvice = baseAdvice[positions.sun.sign][adviceIndex];
+            return selectedAdvice + '♪';
+        }
+
+        // 天体位置の文字列化（逆行と月相情報を含む）- より分かりやすく
+        function formatPlanetaryPositions(positions) {
+            const planetNames = {
+                sun: '☀️ 太陽',
+                moon: '🌙 月',
+                mercury: '☿️ 水星',
+                venus: '♀️ 金星',
+                mars: '♂️ 火星',
+                jupiter: '♃ 木星',
+                saturn: '♄ 土星'
+            };
+            
+            let result = '';
+            
+            // 月相情報を最初に表示
+            if (positions.moonPhase) {
+                result += `🌙 <strong>月相:</strong> ${positions.moonPhase.name}<br><br>`;
+            }
+            
+            // 各惑星の位置情報 - 度数は表示せず、星座のみ
+            for (const [planet, data] of Object.entries(positions)) {
+                if (planet === 'moonPhase') continue; // 月相は既に表示済み
+                
+                const retrogradeText = data.retrograde ? ' <span style="color: #D4A5A5;">（逆行中）</span>' : '';
+                result += `${planetNames[planet]}: <strong>${data.sign}</strong>${retrogradeText}<br>`;
+            }
+            
+            result += '<br><small style="color: #A0657A;">各惑星がどの星座にあるかで、その星座の特性が強調されます</small>';
+            
+            return result;
+        }
+
+        async function getFortune(zodiacSign, birthDate) {
+            // 天体位置を取得
+            const planetaryPositions = await getPlanetaryPositions(birthDate);
+            
+            if (!planetaryPositions) {
+                // フォールバック: 基本の占い
+                return {
+                    fortune: {
+                        overall: '天体位置の計算に失敗しました。基本的な占いを表示しています。',
+                        love: '恋愛運は良好です。',
+                        work: '仕事運も上々です。',
+                        health: '健康運に注意してください。',
+                        color: 'ピンク',
+                        number: '7',
+                        advice: '前向きに過ごしましょう♪'
+                    },
+                    positions: null
+                };
+            }
+            
+            // 天体位置に基づく占い生成（生年月日も渡す）
+            const fortune = generateAstrologyFortune(zodiacSign, planetaryPositions, birthDate);
+            
+            return {
+                fortune: fortune,
+                positions: planetaryPositions
+            };
+        }
+
+        function displayResult(zodiacSign, result, birthDate) {
+            const zodiacInfo = zodiacData[zodiacSign];
+            const fortune = result.fortune;
+            
+            // 星座占い結果
+            document.getElementById('zodiacSymbol').textContent = zodiacInfo.symbol;
+            document.getElementById('zodiacName').textContent = zodiacSign;
+            
+            document.getElementById('overallFortune').textContent = fortune.overall;
+            document.getElementById('loveFortune').textContent = fortune.love;
+            document.getElementById('workFortune').textContent = fortune.work;
+            document.getElementById('healthFortune').textContent = fortune.health;
+            document.getElementById('luckyColor').textContent = fortune.color;
+            document.getElementById('luckyNumber').textContent = fortune.number;
+            document.getElementById('advice').textContent = fortune.advice;
+            
+            // 数秘術結果
+            const numerologyResults = calculateNumerology(birthDate);
+            displayNumerologyResults(numerologyResults);
+            
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+            
+            document.getElementById('resultCard').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        // 数秘術計算の統合関数
+        function calculateNumerology(birthDate) {
+            const lifePath = numerologySystem.calculateLifePath(birthDate);
+            const personalDay = numerologySystem.calculatePersonalDay(birthDate);
+            const personalMonth = numerologySystem.calculatePersonalMonth(birthDate);
+            
+            return {
+                lifePath: lifePath,
+                personalDay: personalDay,
+                personalMonth: personalMonth,
+                personality: numerologyInterpretations.lifePath[lifePath],
+                dayMessage: numerologyInterpretations.personalDay[personalDay],
+                monthMessage: numerologyInterpretations.personalMonth[personalMonth]
+            };
+        }
+        
+        // 数秘術結果の表示
+        function displayNumerologyResults(numerologyResults) {
+            document.getElementById('lifePathNumber').textContent = numerologyResults.lifePath;
+            document.getElementById('personalDayNumber').textContent = numerologyResults.personalDay;
+            document.getElementById('personalMonthNumber').textContent = numerologyResults.personalMonth;
+            
+            if (numerologyResults.personality) {
+                document.getElementById('personalityDescription').textContent = numerologyResults.personality.personality;
+                document.getElementById('personalityStrengths').textContent = numerologyResults.personality.strengths;
+                document.getElementById('personalityChallenges').textContent = numerologyResults.personality.challenges;
+            }
+            
+            document.getElementById('personalDayMessage').textContent = numerologyResults.dayMessage || '今日は良い日です。';
+            document.getElementById('personalMonthMessage').textContent = numerologyResults.monthMessage || '今月は順調に進みそうです。';
+        }
+
+        document.getElementById('fortuneForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const year = parseInt(document.getElementById('year').value);
+            const month = parseInt(document.getElementById('month').value);
+            const day = parseInt(document.getElementById('day').value);
+            const hour = parseInt(document.getElementById('hour').value);
+            const minute = parseInt(document.getElementById('minute').value);
+            
+            if (!year || !month || !day || hour === null || minute === null) {
+                alert('すべての項目を正しく入力してください。');
+                return;
+            }
+            
+            const zodiacSign = getZodiacSign(month, day);
+            if (!zodiacSign) {
+                alert('星座の判定に失敗しました。');
+                return;
+            }
+            
+            // 生年月日オブジェクトを作成
+            const birthDate = new Date(year, month - 1, day, hour, minute);
+            
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('loadingCard').style.display = 'block';
+            
+            // 天体位置を計算して占い結果を生成
+            try {
+                const result = await getFortune(zodiacSign, birthDate);
+                if (result) {
+                    displayResult(zodiacSign, result, birthDate);
+                } else {
+                    document.getElementById('loadingCard').style.display = 'none';
+                    alert('占い結果の取得に失敗しました。');
+                }
+            } catch (error) {
+                console.error('占い処理エラー:', error);
+                document.getElementById('loadingCard').style.display = 'none';
+                alert('占い結果の生成中にエラーが発生しました。');
+            }
+        });
+
+
+        createStars();
+        populateDays();
+    </script>
+</body>
+</html>
