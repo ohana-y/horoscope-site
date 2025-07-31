@@ -871,6 +871,7 @@
                 const signIndex = Math.floor(degree / 30);
                 const signDegree = Math.floor(degree % 30);
                 
+                
                 result[planet] = {
                     sign: zodiacSigns[signIndex],
                     degree: signDegree,
@@ -1170,7 +1171,7 @@
             });
             
             // ラッキーカラーとナンバーを天体位置から算出（生年月日考慮）
-            const luckyColor = getLuckyColor(planetaryPositions);
+            const luckyColor = getLuckyColor(planetaryPositions, birthDate);
             const luckyNumber = getLuckyNumber(planetaryPositions, birthDate);
             const advice = generateAdvice(planetaryPositions, aspects, birthDate);
             
@@ -1186,16 +1187,22 @@
         }
         
         // 天体位置からラッキーカラーを算出
-        function getLuckyColor(positions) {
+        function getLuckyColor(positions, birthDate) {
             const colors = {
-                '牡羊座': 'レッド', '牡牛座': 'グリーン', '双子座': 'イエロー',
-                '蟹座': 'シルバー', '獅子座': 'ゴールド', '乙女座': 'ネイビー',
-                '天秤座': 'ピンク', '蠍座': 'ディープレッド', '射手座': 'パープル',
-                '山羊座': 'ブラウン', '水瓶座': 'アクアブルー', '魚座': 'シーブルー'
+                'おひつじ座': 'レッド', 'おうし座': 'グリーン', 'ふたご座': 'イエロー',
+                'かに座': 'シルバー', 'しし座': 'ゴールド', 'おとめ座': 'ネイビー',
+                'てんびん座': 'ピンク', 'さそり座': 'ディープレッド', 'いて座': 'パープル',
+                'やぎ座': 'ブラウン', 'みずがめ座': 'アクアブルー', 'うお座': 'シーブルー'
             };
             
-            // 金星の星座からラッキーカラーを決定
-            return colors[positions.venus.sign] || 'ピンク';
+            // 生年月日から星座を計算
+            const month = birthDate.getMonth() + 1;
+            const day = birthDate.getDate();
+            const userZodiacSign = getZodiacSign(month, day);
+            
+            
+            // ユーザーの星座からラッキーカラーを決定
+            return colors[userZodiacSign] || 'ピンク';
         }
         
         // 天体位置からラッキーナンバーを算出（生年月日も考慮）
